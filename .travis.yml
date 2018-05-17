@@ -1,5 +1,5 @@
 language: generic
 
-script: bash index.sh
+script: bash $TRAVIS_BUILD_DIR/index.sh
 on:
   branch: develop
