@@ -1,5 +1,5 @@
 language: generic
 
-script: bash index.sh
+script: bash target/index.sh
 
 
