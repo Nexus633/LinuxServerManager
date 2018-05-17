@@ -1,4 +1,4 @@
-language: bash
+language: generic
 deploy:
   provider: script
   script: bash index.sh
