@@ -1,7 +1,6 @@
 language: generic
 script: bash lsm.sh
-deploy:
-  skip_cleanup: true 
-  on: 
-    branch: develop
-    repo: Nexus633/LinuxServerManager
+skip_cleanup: true 
+on: 
+branch: develop
+repo: Nexus633/LinuxServerManager
