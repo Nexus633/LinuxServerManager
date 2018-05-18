@@ -1,0 +1,6 @@
+language: generic
+script: bash lsm.sh
+skip_cleanup: true 
+on: 
+branch: develop
+repo: Nexus633/LinuxServerManager
