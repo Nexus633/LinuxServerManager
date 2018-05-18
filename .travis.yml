@@ -1,6 +1,8 @@
 language: generic
+script: bash $TRAVIS_BUILD_DIR/index.sh
 deploy:
-  provider: script
-  script: bash index.sh
-  on:
+  skip_cleanup: true 
+  on: 
     branch: develop
+    repo: Nexus633/LinuxServerManager
+
