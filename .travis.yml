@@ -1,5 +1,5 @@
 language: generic
-script: bash $TRAVIS_BUILD_DIR/index.sh
+script: bash $TRAVIS_BUILD_DIR/target/index.sh
 deploy:
   skip_cleanup: true 
   on: 
