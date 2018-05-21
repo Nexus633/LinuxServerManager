@@ -15,21 +15,36 @@
 #     REVISION:  ---
 #==============================================================================
 
+#
+# @function		user_exists()
+# @discription	Check if User exists
+# @param 		(string) user
+#
 user_exists(){
 	local which_getent="$(which getent)"
 	local user="$1"
 	local result=""
 	
 	if [[ -n $which_getent ]]; then
-		[[ -n $($which_getent passwd $user) ]] && return 0 || return 1
+		result=$($which_getent passwd $user)
+		[[ -n $result ]] && return 0 || return 1
+
 	else
 		result="$(awk -F: '{print $1}' /etc/passwd | grep -x $user)"
 		[[ -n $result ]] && return 0 || return 1
 	fi
 }
 
+#
+# @function		user_add()
+# @discription	Add user if not exists
+# @param 		(string) user
+# @param 		(string) password
+# @param 		(string) shell
+# 	- @default		(string) /bin/false
+#
 user_add(){
-	[[ $(user_exists $1) ]] && return 1
+	user_exists $1 && return 1
 
 	local user="$1"
 	local password="$2"
@@ -57,15 +72,23 @@ user_add(){
 	fi
 }
 
+#
+# @function		user_del()
+# @discription	Delete User if exists
+# @param 		(string) user
+#
 user_del(){
-	[[ ! $(user_exists $1) ]] && return 1
-	# . "${home_directory}/function/process.sh"
-	# if process of user running -> kill process then del user
+	user_exists $1 || return 1
 	local user="$1"
 	
-	userdel -r ${user} 2> $tmpfile 1> /dev/null
-	[[ $? == 0 ]] && return 0 || return 1
+	. "${home_directory}/function/process.sh"
+
+	kill_all_process_of_user $user
 	
+	userdel -r ${user} 2> $tmpfile 1> /dev/null
+	
+	[[ $? == 0 ]] && return 0 || return 1
+
 	
 }
 

@@ -21,7 +21,7 @@
 #==============================================================================
 
 # trap to cleanup tmpfile
-trap cleanup_tmpfile SIGHUP SIGINT SIGPIPE SIGTERM EXIT RETURN
+trap cleanup_tmpfile  SIGHUP SIGINT SIGPIPE SIGTERM EXIT RETURN
 
 
 # Directorys
@@ -46,29 +46,59 @@ log_archiv_interval=7
 # Make a tempfile for cacheing
 tmpfile="$(mktemp /tmp/lsm.XXXXX)"
 
+#
+# @function		cleanup_tmpfile()
+# @discription	after this job clean tmpfile
+# @see 			trap
+#
 cleanup_tmpfile() {
 	[[ -e $tmpfile ]] && rm --force $tmpfile
+	unset pid
+	unset pids
 }
+
+#
+# @function		function_exists()
+# @discription	check function is exists for include
+# @see 			trap
+#
+function_exists() {
+    declare -f -F $1 > /dev/null
+    return $?
+}
+
+# Set Debugmode on
+set -x
 
 . "${home_directory}/function/user.sh"
 
-user_add "Nexusf" "1234" "/bin/bash" && echo yo || echo no
+if ! function_exists kill_process; then
+	. "${home_directory}/function/process.sh"
+fi
+
+user_add "Nexusf" "1234" "/bin/bash" && echo "User add" || echo "user not add"
+#user_del "Nexusf" && echo "User del" || echo "user not del"
+kill_process "Nexusf" "test-test-test" && echo "server stop" || echo "server not stop"
+
+# Set Debugmode off
+set +x
 
 
-install=false
-remove=false
- 
-while (( $# > 0 )); do
-	case $1 in
-		-i|--install)
-			[[ $remove == "true" ]] # && usage
-			install=true;;
-		-r|--remove)
-			[[ $install == "true" ]] # && usage
-			remove=true;;
-	esac
-	shift
-done
+
+# install=false
+# remove=false
+# 
+# while (( $# > 0 )); do
+#	case $1 in
+#		-i|--install)
+#			[[ $remove == "true" ]] # && usage
+#			install=true;;
+#		-r|--remove)
+#			[[ $install == "true" ]] # && usage
+#			remove=true;;
+#	esac
+#	shift
+# done
 
 
 
