@@ -88,16 +88,35 @@ get_process_id(){
 			}'
 		)
 	
-	if [[ -n $pid ]]; then
-		ppid=$(ps --ppid ${pid} | tail -n1 | awk '{print $1}')
-		return 0
-	else
- 		return 1
-	fi
+	[[ -n $pid ]] && return 0 || return 1
+
 }
 
-_check_java_process(){
-	local user="$1" 
+#
+# @function 	_check_ppid_process()
+# @discription 	check ppid for cpu and mem usage
+# @param		(string) user
+# @param		(string) timeout | optional
+#
+_check_ppid_process(){
+	local this_pid="$1"
+	local timeout="${2:-5}"
+	
+	[[ -z $this_pid ]] && return 1
+	
+	while [ -n ${this_pid} ]; do
+		test_pid=$(ps --ppid ${this_pid} --no-headers | awk '{print $1}')
+		if [ -z ${test_pid} ]; then
+			break
+		else
+			ppid=${test_pid}
+			this_pid=${test_pid}
+			(( timeout-- ))
+			(( $timeout == 0 )) && break
+		fi	
+	done
+	
+	return 0
 }
 
 #
@@ -117,9 +136,16 @@ get_all_process_ids(){
 				print $2
 			} 
 		}')
+
 	echo $pids
 }
 
+#
+# @function 	get_used_mem()
+# @discription 	get used memory in kb or mb
+# @param		(string) user
+# @param		(string) screen_name 
+#
 get_used_mem(){
 	local user="$1"
 	local screen_name="$2"
@@ -131,7 +157,7 @@ get_used_mem(){
 	
 	use_pid="$pid"
 	
-	[[ -n $ppid ]] && use_pid=$ppid
+	_check_ppid_process $use_pid && use_pid=$ppid
 	
 	mem=$(ps xa -o pid,rss | awk '{
 			if( $1 == '${use_pid}' ){
@@ -146,5 +172,33 @@ get_used_mem(){
 	
 	
 	echo  $mem
+}
+
+#
+# @function 	get_cpu_percentage()
+# @discription 	get used cpu in percent
+# @param		(string) user
+# @param		(string) screen_name 
+#
+get_cpu_percentage(){
+	local user="$1"
+	local screen_name="$2"
+	
+	get_process_id $user $screen_name || {
+		echo 0
+		return 0
+	}
+	
+	use_pid="$pid"
+	
+	_check_ppid_process $use_pid && use_pid=$ppid
+	
+	cpu=$(ps xa -o pid,%cpu | awk '{
+			if( $1 == '${use_pid}' ){
+				print $2
+			}
+		}')
+	
+	echo  $cpu
 }
 

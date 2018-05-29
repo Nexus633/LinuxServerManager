@@ -81,7 +81,10 @@ fi
 #kill_process "Nexusf" "test-test-test" && echo "server stop" || echo "server not stop"	-> success
 #get_process_id "Nexusf" "minecraft_server_55565"										-> success
 #get_all_process_ids "Nexusf" 															-> success
-#get_used_mem "Nexusf" "minecraft_server_55565"											-> success
+#get_used_mem "Nexusf" "minecraft_server_55565"											-> success - pid -> ppid
+#get_cpu_percentage "Nexusf" "stress_test_1234"											-> success - pid -> ppid -> pppid
+#get_cpu_percentage "Nexusf" "minecraft_server_55565"									-> success - pid -> ppid
+
 
 
 # Set Debugmode off
