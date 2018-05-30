@@ -97,10 +97,11 @@ get_process_id(){
 # @discription 	check ppid for cpu and mem usage
 # @param		(string) user
 # @param		(string) timeout | optional
+# 	- @default		(int) 5
 #
 _check_ppid_process(){
 	local this_pid="$1"
-	local timeout="${2:-5}"
+	local timeout="${2:-5}" # default value 5 retrys
 	
 	[[ -z $this_pid ]] && return 1
 	

@@ -78,6 +78,7 @@ fi
 # TESTs
 #user_add "Nexusf" "1234" "/bin/bash" && echo "User add" || echo "user not add" 		-> success
 #user_del "Nexusf" && echo "User del" || echo "user not del"							-> success
+#user_passwd "Nexusf" "12345678" && echo "passwd change" || echo "passwd not change"	-> success
 #kill_process "Nexusf" "test-test-test" && echo "server stop" || echo "server not stop"	-> success
 #get_process_id "Nexusf" "minecraft_server_55565"										-> success
 #get_all_process_ids "Nexusf" 															-> success

@@ -51,10 +51,11 @@ user_add(){
 	local shell="${3:-/bin/false}" # default value /bin/false
 	local hash_password=""
 	local which_perl="$(which perl)"
+	local timestamp="user add at: $(date +"%d.%m.%y %T")"
 	
 	hash_password=$($which_perl -e 'print crypt("'${password}'","Q9")')
 	useradd -g users -p ${hash_password} -d /home/${user} \
-			-m ${user} -s ${shell} 2> $tmpfile 1> /dev/null
+			-m ${user} -c ${timestamp} -s ${shell} 2> $tmpfile 1> /dev/null
 		
 	if [[ $? == 0 ]]; then
 		if [[ "$shell" != "/bin/false" ]];then
@@ -79,6 +80,7 @@ user_add(){
 #
 user_del(){
 	user_exists $1 || return 1
+	[[ $1 == "root" ]] && return 1
 	local user="$1"
 	
 	. "${home_directory}/function/process.sh"
@@ -92,7 +94,25 @@ user_del(){
 	
 }
 
-
+#
+# @function		user_passwd()
+# @discription	change password from user
+# @param		(string) user
+# @param		(string) password
+#
+user_passwd(){
+	user_exists $1 || return 1
+	[[ "$1" == "root" ]] && return 1
+	
+	local user="$1"
+	local password="$2"
+	local which_perl="$(which perl)"
+	local hash_password=$($which_perl -e 'print crypt("'${password}'","Q9")')
+	
+	usermod -p ${hash_password} $user
+		
+	[[ $? == 0 ]] && return 0 || return 1
+}
 
 
 
