@@ -93,6 +93,27 @@ get_process_id(){
 }
 
 #
+# @function 	get_all_process_ids()
+# @discription 	get all pids by user
+# @param		(string) user
+#
+get_all_process_ids(){
+	local user="$1"
+	local user_id="$(id -u $user)"
+	
+	user_exists $user || return 1
+	[[ -z $user_id ]] && return 1
+	
+	pids=$(ps xa -o uid,pid | awk '{
+			if( $1 == '${user_id}' ){
+				print $2
+			} 
+		}')
+
+	echo $pids
+}
+
+#
 # @function 	_check_ppid_process()
 # @discription 	check ppid for cpu and mem usage
 # @param		(string) user
@@ -118,27 +139,6 @@ _check_ppid_process(){
 	done
 	
 	return 0
-}
-
-#
-# @function 	get_all_process_ids()
-# @discription 	get all pids by user
-# @param		(string) user
-#
-get_all_process_ids(){
-	local user="$1"
-	local user_id="$(id -u $user)"
-	
-	user_exists $user || return 1
-	[[ -z $user_id ]] && return 1
-	
-	pids=$(ps xa -o uid,pid | awk '{
-			if( $1 == '${user_id}' ){
-				print $2
-			} 
-		}')
-
-	echo $pids
 }
 
 #
@@ -186,8 +186,7 @@ get_cpu_percentage(){
 	local screen_name="$2"
 	
 	get_process_id $user $screen_name || {
-		echo 0
-		return 0
+		return 1
 	}
 	
 	use_pid="$pid"
@@ -200,6 +199,44 @@ get_cpu_percentage(){
 			}
 		}')
 	
-	echo  $cpu
+	echo $cpu
+
+}
+
+get_uptime(){
+	local user="$1"
+	local screen_name="$2"
+	
+	get_process_id $user $screen_name || {
+		return 1
+	}
+	
+	use_pid="$pid"
+	
+	_check_ppid_process $use_pid && use_pid=$ppid
+	
+	tmp_uptime=( $(ps -eo pid,etime | awk '{ 
+			if( $1 == 143 ){
+				print $2
+			}}' | tr '-' ':' | tr ':' ' ') )
+	
+	timearray=()
+	
+	case ${#tmp_uptime[*]} in
+		2)
+			timearray=( Day\(s\) Hour\(s\) Minute\(s\) Second\(s\) );;
+		3)
+			timearray=( Hour\(s\) Minute\(s\) Second\(s\) );;
+		4)
+			timearray=( Minute\(s\) Second\(s\) );;
+	esac
+	
+	ii=0
+	for I in ${tmp_uptime[*]}; do
+		uptime+="${I[*]} ${timearray[$ii]} "
+		(( ii++ ))
+	done
+	
+	echo $uptime
 }
 
